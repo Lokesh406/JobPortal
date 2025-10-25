@@ -31,9 +31,26 @@ app.use("/api/v1/application", applicationRoute);
 
 const PORT = process.env.PORT || 8000;
 
-// Connect to DB first, then start server
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running at port ${PORT}`);
+// Ensure DB connection (once) and handle Vercel serverless export
+let isDbConnected = false;
+const ensureDb = async () => {
+  if (!isDbConnected) {
+    await connectDB();
+    isDbConnected = true;
+  }
+};
+
+// In Vercel serverless environment, do not listen; export the app.
+// For local/dev, start the HTTP server normally.
+if (!process.env.VERCEL) {
+  ensureDb().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running at port ${PORT}`);
+    });
   });
-});
+} else {
+  // Connect DB on cold start for serverless
+  ensureDb();
+}
+
+export default app;
