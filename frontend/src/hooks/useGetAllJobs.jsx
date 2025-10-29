@@ -19,10 +19,10 @@ const useGetAllJobs = () => {
                 if (industryFilter) {
                     url += `&industry=${industryFilter}`;
                 }
-                if (salaryFilter.min > 0) {
+                if (salaryFilter && salaryFilter.min > 0) {
                     url += `&salaryMin=${salaryFilter.min}`;
                 }
-                if (salaryFilter.max < Number.MAX_VALUE) {
+                if (salaryFilter && salaryFilter.max < Number.MAX_VALUE) {
                     url += `&salaryMax=${salaryFilter.max}`;
                 }
 
