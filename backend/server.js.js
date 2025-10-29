@@ -28,6 +28,10 @@ app.use("/api/v1/user", userRoute);
 app.use("/api/v1/company", companyRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
+// Simple health check
+app.get(["/","/api/health"], (req, res) => {
+  res.status(200).json({ ok: true });
+});
 
 const PORT = process.env.PORT || 8000;
 
@@ -53,4 +57,18 @@ if (!process.env.VERCEL) {
   ensureDb();
 }
 
-export default app;
+// For Vercel serverless: export a handler function
+export default async function handler(req, res) {
+  try {
+    // Allow health checks without DB connection
+    if (req.url === "/" || req.url.startsWith("/api/health")) {
+      return app(req, res);
+    }
+    await ensureDb();
+    return app(req, res);
+  } catch (err) {
+    console.error("Request failed:", err);
+    const message = err?.message || "Internal Server Error";
+    return res.status(500).json({ success: false, message });
+  }
+}

@@ -11,7 +11,9 @@ const connectDB = async () => {
     console.log("MongoDB connected successfully");
   } catch (error) {
     console.error("MongoDB connection failed:", error.message);
-    process.exit(1); // stop server if DB connection fails
+    // In serverless environments (Vercel), exiting the process crashes the function.
+    // Throw the error so the caller can decide how to handle it.
+    throw error;
   }
 };
 
